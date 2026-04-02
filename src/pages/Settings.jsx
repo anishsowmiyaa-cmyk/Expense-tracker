@@ -33,15 +33,17 @@ export const Settings = () => {
 
   return (
     <div className="settings-page animate-fade-in">
-      <header className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1 className="title">Net Worth Config</h1>
+      <header className="page-header">
+        <h1 className="title" style={{ margin: 0 }}>Settings</h1>
         <button 
           className="btn btn-ghost text-expense"
+          style={{ padding: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
           onClick={() => {
              signOut(auth);
           }}
         >
           <LogOut size={20} />
+          <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>Sign Out</span>
         </button>
       </header>
 

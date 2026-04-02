@@ -1,6 +1,8 @@
 import { useStore } from '../store/useStore';
 import { formatINR } from '../utils/formatCurrency';
-import { ArrowUpRight, ArrowDownRight, Activity, Landmark, CreditCard } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, Activity, Landmark, CreditCard, LogOut } from 'lucide-react';
+import { auth } from '../firebase';
+import { signOut } from 'firebase/auth';
 import './Dashboard.css';
 
 export const Dashboard = () => {
@@ -13,7 +15,17 @@ export const Dashboard = () => {
   return (
     <div className="dashboard animate-fade-in">
       <header className="dashboard-header">
-        <h1 className="title">Overview</h1>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+          <h1 className="title" style={{ margin: 0 }}>Overview</h1>
+          <button 
+            className="btn btn-ghost text-expense"
+            style={{ padding: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+            onClick={() => signOut(auth)}
+          >
+            <LogOut size={20} />
+            <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>Sign Out</span>
+          </button>
+        </div>
         <div className="net-worth-card glass-card">
           <p className="label">Total Net Worth</p>
           <h2 className="amount">{formatINR(netWorth)}</h2>

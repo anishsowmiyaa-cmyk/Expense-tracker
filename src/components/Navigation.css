@@ -50,11 +50,4 @@
   box-shadow: 0 6px 25px rgba(59, 130, 246, 0.4);
 }
 
-@media (min-width: 768px) {
-  .bottom-nav {
-    top: 0;
-    bottom: auto;
-    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-  }
-}
+

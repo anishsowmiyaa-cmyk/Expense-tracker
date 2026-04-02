@@ -6,6 +6,7 @@ import { useStore } from './store/useStore';
 
 import { Layout } from './components/Layout';
 import { Dashboard } from './pages/Dashboard';
+import { ExpenseDashboard } from './pages/ExpenseDashboard';
 import { AddTransaction } from './pages/AddTransaction';
 import { Transactions } from './pages/Transactions';
 import { Analytics } from './pages/Analytics';
@@ -52,6 +53,7 @@ function App() {
           </ProtectedRoute>
         }>
           <Route index element={<Dashboard />} />
+          <Route path="expenses" element={<ExpenseDashboard />} />
           <Route path="stats" element={<Transactions />} />
           <Route path="analytics" element={<Analytics />} />
           <Route path="settings" element={<Settings />} />

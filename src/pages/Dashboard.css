@@ -1,5 +1,13 @@
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
 .dashboard-header {
-  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .title {
@@ -7,11 +15,58 @@
   margin-bottom: 1rem;
 }
 
+.dashboard-title {
+  margin-bottom: 0;
+}
+
+.dashboard-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.dashboard-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.dashboard-link-btn {
+  padding: 0.625rem 0.9rem;
+  font-size: 0.875rem;
+  text-decoration: none;
+}
+
+.dashboard-inline-link {
+  color: var(--accent-brand);
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.dashboard-inline-link:hover {
+  text-decoration: underline;
+}
+
+.eyebrow {
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+  margin-bottom: 0.35rem;
+}
+
 .net-worth-card {
   text-align: center;
   padding: 2rem;
   background: linear-gradient(145deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9));
   border-top: 2px solid var(--accent-brand-alpha);
+}
+
+.expense-card {
+  border-top-color: var(--accent-expense-alpha);
 }
 
 .label {
@@ -41,6 +96,48 @@
   gap: 0.5rem;
   font-weight: 500;
   font-size: 1.125rem;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.summary-panel {
+  padding: 1.25rem;
+}
+
+.summary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.summary-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.summary-label {
+  color: var(--text-secondary);
+  font-size: 0.925rem;
+}
+
+.summary-value {
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 700;
+  text-align: right;
 }
 
 .section-header {
@@ -116,6 +213,10 @@
   border-style: dashed;
 }
 
+.compact-empty-state {
+  padding: 1.5rem 1rem;
+}
+
 .mb-2 {
   margin-bottom: 0.5rem;
 }
@@ -126,4 +227,26 @@
 
 .text-sm {
   font-size: 0.875rem;
+}
+
+@media (min-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .dashboard-heading {
+    flex-direction: column;
+  }
+
+  .dashboard-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .stats-row {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
 }

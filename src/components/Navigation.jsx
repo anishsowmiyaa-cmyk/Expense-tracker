@@ -1,13 +1,17 @@
 import { NavLink } from 'react-router-dom';
-import { Home, PlusCircle, Settings, PieChart, TrendingUp } from 'lucide-react';
+import { Home, PlusCircle, Settings, PieChart, TrendingUp, Wallet } from 'lucide-react';
 import './Navigation.css';
 
 export const Navigation = () => {
   return (
     <nav className="bottom-nav glass-card">
       <NavLink to="/" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-        <Home size={24} />
-        <span>Home</span>
+        <Home size={22} />
+        <span>Worth</span>
+      </NavLink>
+      <NavLink to="/expenses" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+        <Wallet size={22} />
+        <span>Spend</span>
       </NavLink>
       <NavLink to="/add" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
         <div className="fab">
@@ -15,15 +19,15 @@ export const Navigation = () => {
         </div>
       </NavLink>
       <NavLink to="/stats" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-        <PieChart size={24} />
+        <PieChart size={22} />
         <span>List</span>
       </NavLink>
       <NavLink to="/analytics" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-        <TrendingUp size={24} />
+        <TrendingUp size={22} />
         <span>Charts</span>
       </NavLink>
       <NavLink to="/settings" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-        <Settings size={24} />
+        <Settings size={22} />
         <span>Settings</span>
       </NavLink>
     </nav>

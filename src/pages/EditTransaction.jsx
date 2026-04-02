@@ -4,6 +4,13 @@ import { useStore } from '../store/useStore';
 import { ArrowLeft, Save } from 'lucide-react';
 import './AddTransaction.css'; // Reusing CSS from AddTransaction
 
+const getCategoriesByType = (type) => (
+  type === 'expense' ? ['Food & Dining', 'Transportation', 'Shopping', 'Bills & Utilities', 'Entertainment', 'Others'] :
+  type === 'income' ? ['Salary', 'Freelance', 'Investments', 'Gift', 'Others'] :
+  type === 'asset' ? ['Home', 'Land', 'Gold', 'Vehicle', 'Stocks', 'Bank Balance', 'Others'] :
+  ['Home Loan', 'Car Loan', 'Personal Loan', 'Credit Card', 'Others']
+);
+
 export const EditTransaction = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -16,22 +23,30 @@ export const EditTransaction = () => {
   const [category, setCategory] = useState('');
   const [date, setDate] = useState('');
   const [note, setNote] = useState('');
+  const [useCustomCategory, setUseCustomCategory] = useState(false);
+  const [customCategory, setCustomCategory] = useState('');
 
   useEffect(() => {
     if (existingTransaction) {
+      const defaultCategories = getCategoriesByType(existingTransaction.type);
+      const isPresetCategory = defaultCategories.includes(existingTransaction.category);
+
       setType(existingTransaction.type);
       setAmount(existingTransaction.amount);
-      setCategory(existingTransaction.category);
+      setCategory(isPresetCategory ? existingTransaction.category : '');
       setDate(existingTransaction.date);
       setNote(existingTransaction.note || '');
+      setUseCustomCategory(!isPresetCategory);
+      setCustomCategory(isPresetCategory ? '' : existingTransaction.category);
     } else {
-      navigate('/transactions');
+      navigate('/stats');
     }
   }, [existingTransaction, navigate]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!amount || !category) return;
+    const finalCategory = useCustomCategory ? customCategory.trim() : category;
+    if (!amount || !finalCategory) return;
     
     // Simplest edit: delete old, add new but keep the same ID implicitly or generate new.
     // Actually, delete the old one and add a new one is fine, but it changes the order.
@@ -43,7 +58,7 @@ export const EditTransaction = () => {
     addTransaction({
       type,
       amount: parseFloat(amount),
-      category,
+      category: finalCategory,
       date,
       note
     });
@@ -53,11 +68,14 @@ export const EditTransaction = () => {
 
   if (!existingTransaction) return null;
 
-  const categories = 
-    type === 'expense' ? ['Food & Dining', 'Transportation', 'Shopping', 'Bills & Utilities', 'Entertainment', 'Others'] :
-    type === 'income' ? ['Salary', 'Freelance', 'Investments', 'Gift', 'Others'] :
-    type === 'asset' ? ['Home', 'Land', 'Gold', 'Vehicle', 'Stocks', 'Bank Balance', 'Others'] :
-    ['Home Loan', 'Car Loan', 'Personal Loan', 'Credit Card', 'Others'];
+  const categories = getCategoriesByType(type);
+
+  const handleTypeChange = (nextType) => {
+    setType(nextType);
+    setCategory('');
+    setUseCustomCategory(false);
+    setCustomCategory('');
+  };
 
   return (
     <div className="add-transaction animate-slide-up">
@@ -71,26 +89,30 @@ export const EditTransaction = () => {
 
       <div className="type-toggle glass-card" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
         <button 
+          type="button"
           className={`toggle-btn ${type === 'expense' ? 'active-expense' : ''}`}
-          onClick={() => { setType('expense'); setCategory(''); }}
+          onClick={() => handleTypeChange('expense')}
         >
           Expense
         </button>
         <button 
+          type="button"
           className={`toggle-btn ${type === 'income' ? 'active-income' : ''}`}
-          onClick={() => { setType('income'); setCategory(''); }}
+          onClick={() => handleTypeChange('income')}
         >
           Income
         </button>
         <button 
+          type="button"
           className={`toggle-btn ${type === 'asset' ? 'active-asset' : ''}`}
-          onClick={() => { setType('asset'); setCategory(''); }}
+          onClick={() => handleTypeChange('asset')}
         >
           Add Asset
         </button>
         <button 
+          type="button"
           className={`toggle-btn ${type === 'liability' ? 'active-liability' : ''}`}
-          onClick={() => { setType('liability'); setCategory(''); }}
+          onClick={() => handleTypeChange('liability')}
         >
           Add Debt
         </button>
@@ -115,17 +137,52 @@ export const EditTransaction = () => {
 
         <div className="form-group">
           <label className="form-label">Category</label>
-          <select 
-            className="input-base" 
-            value={category} 
-            onChange={(e) => setCategory(e.target.value)}
-            required
-          >
-            <option value="" disabled>Select category</option>
-            {categories.map(cat => (
-              <option key={cat} value={cat}>{cat}</option>
-            ))}
-          </select>
+          {!useCustomCategory ? (
+            <>
+              <select 
+                className="input-base" 
+                value={category} 
+                onChange={(e) => setCategory(e.target.value)}
+                required={!useCustomCategory}
+              >
+                <option value="" disabled>Select category</option>
+                {categories.map(cat => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
+              <button
+                type="button"
+                className="btn btn-ghost inline-text-btn"
+                onClick={() => {
+                  setUseCustomCategory(true);
+                  setCategory('');
+                }}
+              >
+                Add category manually
+              </button>
+            </>
+          ) : (
+            <>
+              <input
+                type="text"
+                className="input-base"
+                placeholder="Enter custom category"
+                value={customCategory}
+                onChange={(e) => setCustomCategory(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                className="btn btn-ghost inline-text-btn"
+                onClick={() => {
+                  setUseCustomCategory(false);
+                  setCustomCategory('');
+                }}
+              >
+                Choose from list instead
+              </button>
+            </>
+          )}
         </div>
 
         <div className="form-group">
@@ -149,10 +206,15 @@ export const EditTransaction = () => {
           />
         </div>
 
-        <button type="submit" className="btn btn-primary submit-btn mt-6">
-          <Save size={20} />
-          <span>Update Transaction</span>
-        </button>
+        <div className="form-actions mt-6">
+          <button type="button" className="btn btn-ghost secondary-action-btn" onClick={() => navigate(-1)}>
+            Cancel
+          </button>
+          <button type="submit" className="btn btn-primary submit-btn">
+            <Save size={20} />
+            <span>Update Activity</span>
+          </button>
+        </div>
       </form>
     </div>
   );

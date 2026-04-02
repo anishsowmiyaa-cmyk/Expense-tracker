@@ -21,10 +21,11 @@
   align-items: center;
   color: var(--text-secondary);
   text-decoration: none;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 500;
   gap: 0.25rem;
   transition: var(--transition);
+  min-width: 48px;
 }
 
 .nav-item:hover, .nav-item.active {
@@ -49,5 +50,4 @@
   transform: translateY(-22px) scale(1.05);
   box-shadow: 0 6px 25px rgba(59, 130, 246, 0.4);
 }
-
 

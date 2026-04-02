@@ -4,6 +4,13 @@ import { useStore } from '../store/useStore';
 import { ArrowLeft, Save } from 'lucide-react';
 import './AddTransaction.css';
 
+const getCategoriesByType = (type) => (
+  type === 'expense' ? ['Food & Dining', 'Transportation', 'Shopping', 'Bills & Utilities', 'Entertainment', 'Others'] :
+  type === 'income' ? ['Salary', 'Freelance', 'Investments', 'Gift', 'Others'] :
+  type === 'asset' ? ['Home', 'Land', 'Gold', 'Vehicle', 'Stocks', 'Bank Balance', 'Others'] :
+  ['Home Loan', 'Car Loan', 'Personal Loan', 'Credit Card', 'Others']
+);
+
 export const AddTransaction = () => {
   const navigate = useNavigate();
   const { addTransaction } = useStore();
@@ -13,15 +20,18 @@ export const AddTransaction = () => {
   const [category, setCategory] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [note, setNote] = useState('');
+  const [useCustomCategory, setUseCustomCategory] = useState(false);
+  const [customCategory, setCustomCategory] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!amount || !category) return;
+    const finalCategory = useCustomCategory ? customCategory.trim() : category;
+    if (!amount || !finalCategory) return;
     
     addTransaction({
       type,
       amount: parseFloat(amount),
-      category,
+      category: finalCategory,
       date,
       note
     });
@@ -29,11 +39,20 @@ export const AddTransaction = () => {
     navigate('/');
   };
 
-  const categories = 
-    type === 'expense' ? ['Food & Dining', 'Transportation', 'Shopping', 'Bills & Utilities', 'Entertainment', 'Others'] :
-    type === 'income' ? ['Salary', 'Freelance', 'Investments', 'Gift', 'Others'] :
-    type === 'asset' ? ['Home', 'Land', 'Gold', 'Vehicle', 'Stocks', 'Bank Balance', 'Others'] :
-    ['Home Loan', 'Car Loan', 'Personal Loan', 'Credit Card', 'Others'];
+  const categories = getCategoriesByType(type);
+
+  const handleTypeChange = (nextType) => {
+    setType(nextType);
+    setCategory('');
+    setUseCustomCategory(false);
+    setCustomCategory('');
+  };
+
+  const saveLabel =
+    type === 'asset' ? 'Save Asset' :
+    type === 'liability' ? 'Save Debt' :
+    type === 'income' ? 'Save Income' :
+    'Save Expense';
 
   return (
     <div className="add-transaction animate-slide-up">
@@ -47,26 +66,30 @@ export const AddTransaction = () => {
 
       <div className="type-toggle glass-card" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
         <button 
+          type="button"
           className={`toggle-btn ${type === 'expense' ? 'active-expense' : ''}`}
-          onClick={() => { setType('expense'); setCategory(''); }}
+          onClick={() => handleTypeChange('expense')}
         >
           Expense
         </button>
         <button 
+          type="button"
           className={`toggle-btn ${type === 'income' ? 'active-income' : ''}`}
-          onClick={() => { setType('income'); setCategory(''); }}
+          onClick={() => handleTypeChange('income')}
         >
           Income
         </button>
         <button 
+          type="button"
           className={`toggle-btn ${type === 'asset' ? 'active-asset' : ''}`}
-          onClick={() => { setType('asset'); setCategory(''); }}
+          onClick={() => handleTypeChange('asset')}
         >
           Add Asset
         </button>
         <button 
+          type="button"
           className={`toggle-btn ${type === 'liability' ? 'active-liability' : ''}`}
-          onClick={() => { setType('liability'); setCategory(''); }}
+          onClick={() => handleTypeChange('liability')}
         >
           Add Debt
         </button>
@@ -92,17 +115,52 @@ export const AddTransaction = () => {
 
         <div className="form-group">
           <label className="form-label">Category</label>
-          <select 
-            className="input-base" 
-            value={category} 
-            onChange={(e) => setCategory(e.target.value)}
-            required
-          >
-            <option value="" disabled>Select category</option>
-            {categories.map(cat => (
-              <option key={cat} value={cat}>{cat}</option>
-            ))}
-          </select>
+          {!useCustomCategory ? (
+            <>
+              <select 
+                className="input-base" 
+                value={category} 
+                onChange={(e) => setCategory(e.target.value)}
+                required={!useCustomCategory}
+              >
+                <option value="" disabled>Select category</option>
+                {categories.map(cat => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
+              <button
+                type="button"
+                className="btn btn-ghost inline-text-btn"
+                onClick={() => {
+                  setUseCustomCategory(true);
+                  setCategory('');
+                }}
+              >
+                Add category manually
+              </button>
+            </>
+          ) : (
+            <>
+              <input
+                type="text"
+                className="input-base"
+                placeholder="Enter custom category"
+                value={customCategory}
+                onChange={(e) => setCustomCategory(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                className="btn btn-ghost inline-text-btn"
+                onClick={() => {
+                  setUseCustomCategory(false);
+                  setCustomCategory('');
+                }}
+              >
+                Choose from list instead
+              </button>
+            </>
+          )}
         </div>
 
         <div className="form-group">
@@ -127,10 +185,15 @@ export const AddTransaction = () => {
           />
         </div>
 
-        <button type="submit" className="btn btn-primary submit-btn mt-6">
-          <Save size={20} />
-          <span>Save Transaction</span>
-        </button>
+        <div className="form-actions mt-6">
+          <button type="button" className="btn btn-ghost secondary-action-btn" onClick={() => navigate(-1)}>
+            Cancel
+          </button>
+          <button type="submit" className="btn btn-primary submit-btn">
+            <Save size={20} />
+            <span>{saveLabel}</span>
+          </button>
+        </div>
       </form>
     </div>
   );

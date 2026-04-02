@@ -33,7 +33,7 @@ export const Settings = () => {
 
   return (
     <div className="settings-page animate-fade-in">
-      <header className="page-header">
+      <header className="page-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
         <h1 className="title" style={{ margin: 0 }}>Settings</h1>
         <button 
           className="btn btn-ghost text-expense"

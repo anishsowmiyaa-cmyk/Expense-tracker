@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { db, auth } from '../firebase';
-import { doc, onSnapshot, updateDoc, arrayUnion } from 'firebase/firestore';
+import { doc, onSnapshot, setDoc, arrayUnion } from 'firebase/firestore';
 
 export const useStore = create((set, get) => ({
   transactions: [],
@@ -48,9 +48,9 @@ export const useStore = create((set, get) => ({
     const newTransaction = { ...transaction, id: crypto.randomUUID() };
     const userDocRef = doc(db, 'users', user.uid);
     
-    await updateDoc(userDocRef, {
+    await setDoc(userDocRef, {
       transactions: arrayUnion(newTransaction)
-    });
+    }, { merge: true });
   },
 
   deleteTransaction: async (id) => {
@@ -61,9 +61,9 @@ export const useStore = create((set, get) => ({
     const updatedTransactions = transactions.filter((t) => t.id !== id);
     
     const userDocRef = doc(db, 'users', user.uid);
-    await updateDoc(userDocRef, {
+    await setDoc(userDocRef, {
       transactions: updatedTransactions
-    });
+    }, { merge: true });
   },
 
   addAsset: async (asset) => {
@@ -72,9 +72,9 @@ export const useStore = create((set, get) => ({
     
     const newAsset = { ...asset, id: crypto.randomUUID() };
     const userDocRef = doc(db, 'users', user.uid);
-    await updateDoc(userDocRef, {
+    await setDoc(userDocRef, {
       assets: arrayUnion(newAsset)
-    });
+    }, { merge: true });
   },
 
   deleteAsset: async (id) => {
@@ -84,7 +84,7 @@ export const useStore = create((set, get) => ({
     const { assets } = get();
     const updated = assets.filter((a) => a.id !== id);
     const userDocRef = doc(db, 'users', user.uid);
-    await updateDoc(userDocRef, { assets: updated });
+    await setDoc(userDocRef, { assets: updated }, { merge: true });
   },
 
   addLiability: async (liability) => {
@@ -93,9 +93,9 @@ export const useStore = create((set, get) => ({
     
     const newLiability = { ...liability, id: crypto.randomUUID() };
     const userDocRef = doc(db, 'users', user.uid);
-    await updateDoc(userDocRef, {
+    await setDoc(userDocRef, {
       liabilities: arrayUnion(newLiability)
-    });
+    }, { merge: true });
   },
 
   deleteLiability: async (id) => {
@@ -105,7 +105,7 @@ export const useStore = create((set, get) => ({
     const { liabilities } = get();
     const updated = liabilities.filter((l) => l.id !== id);
     const userDocRef = doc(db, 'users', user.uid);
-    await updateDoc(userDocRef, { liabilities: updated });
+    await setDoc(userDocRef, { liabilities: updated }, { merge: true });
   },
 
   // Computed/Derived State via Getters

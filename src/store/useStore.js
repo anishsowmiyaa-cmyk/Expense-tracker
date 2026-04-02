@@ -1,18 +1,24 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import { db, auth } from '../firebase';
-import { doc, onSnapshot, setDoc, arrayUnion } from 'firebase/firestore';
+import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 
-export const useStore = create((set, get) => ({
+export const useStore = create(persist((set, get) => ({
   transactions: [],
   assets: [],
   liabilities: [],
   isLoaded: false,
+  isSyncing: false,
+  lastSyncError: null,
   unsubscribe: null,
 
   // Setup Firestore listener
   initFirebaseSync: () => {
     const user = auth.currentUser;
     if (!user) return;
+
+     const { unsubscribe } = get();
+     if (unsubscribe) unsubscribe();
 
     const userDocRef = doc(db, 'users', user.uid);
     const unsub = onSnapshot(userDocRef, (docSnap) => {
@@ -22,10 +28,11 @@ export const useStore = create((set, get) => ({
           transactions: data.transactions || [],
           assets: data.assets || [],
           liabilities: data.liabilities || [],
-          isLoaded: true
+          isLoaded: true,
+          lastSyncError: null,
         });
       } else {
-        set({ isLoaded: true, transactions: [], assets: [], liabilities: [] });
+        set({ isLoaded: true, transactions: [], assets: [], liabilities: [], lastSyncError: null });
       }
     });
 
@@ -35,22 +42,52 @@ export const useStore = create((set, get) => ({
   cleanup: () => {
     const { unsubscribe } = get();
     if (unsubscribe) unsubscribe();
-    set({ unsubscribe: null, isLoaded: false, transactions: [], assets: [], liabilities: [] });
+    set({
+      unsubscribe: null,
+      isLoaded: false,
+      isSyncing: false,
+      lastSyncError: null,
+      transactions: [],
+      assets: [],
+      liabilities: [],
+    });
+  },
+
+  syncUserData: async () => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const { transactions, assets, liabilities } = get();
+    const userDocRef = doc(db, 'users', user.uid);
+
+    set({ isSyncing: true, lastSyncError: null });
+
+    try {
+      await setDoc(userDocRef, {
+        transactions,
+        assets,
+        liabilities,
+      }, { merge: true });
+      set({ isSyncing: false, lastSyncError: null });
+    } catch (error) {
+      console.error('Firebase sync failed', error);
+      set({
+        isSyncing: false,
+        lastSyncError: error?.message || 'Sync failed',
+      });
+    }
   },
 
   // Actions automatically update Firestore
   addTransaction: async (transaction) => {
     const user = auth.currentUser;
     if (!user) return;
-    
-    // Optimistic local update isn't strictly needed if onSnapshot is fast, 
-    // but the store will naturally update when Firestore broadcasts it back.
+
     const newTransaction = { ...transaction, id: crypto.randomUUID() };
-    const userDocRef = doc(db, 'users', user.uid);
-    
-    await setDoc(userDocRef, {
-      transactions: arrayUnion(newTransaction)
-    }, { merge: true });
+    const updatedTransactions = [...get().transactions, newTransaction];
+
+    set({ transactions: updatedTransactions });
+    await get().syncUserData();
   },
 
   deleteTransaction: async (id) => {
@@ -60,21 +97,19 @@ export const useStore = create((set, get) => ({
     const { transactions } = get();
     const updatedTransactions = transactions.filter((t) => t.id !== id);
     
-    const userDocRef = doc(db, 'users', user.uid);
-    await setDoc(userDocRef, {
-      transactions: updatedTransactions
-    }, { merge: true });
+    set({ transactions: updatedTransactions });
+    await get().syncUserData();
   },
 
   addAsset: async (asset) => {
     const user = auth.currentUser;
     if (!user) return;
-    
+
     const newAsset = { ...asset, id: crypto.randomUUID() };
-    const userDocRef = doc(db, 'users', user.uid);
-    await setDoc(userDocRef, {
-      assets: arrayUnion(newAsset)
-    }, { merge: true });
+    const updatedAssets = [...get().assets, newAsset];
+
+    set({ assets: updatedAssets });
+    await get().syncUserData();
   },
 
   deleteAsset: async (id) => {
@@ -83,19 +118,19 @@ export const useStore = create((set, get) => ({
     
     const { assets } = get();
     const updated = assets.filter((a) => a.id !== id);
-    const userDocRef = doc(db, 'users', user.uid);
-    await setDoc(userDocRef, { assets: updated }, { merge: true });
+    set({ assets: updated });
+    await get().syncUserData();
   },
 
   addLiability: async (liability) => {
     const user = auth.currentUser;
     if (!user) return;
-    
+
     const newLiability = { ...liability, id: crypto.randomUUID() };
-    const userDocRef = doc(db, 'users', user.uid);
-    await setDoc(userDocRef, {
-      liabilities: arrayUnion(newLiability)
-    }, { merge: true });
+    const updatedLiabilities = [...get().liabilities, newLiability];
+
+    set({ liabilities: updatedLiabilities });
+    await get().syncUserData();
   },
 
   deleteLiability: async (id) => {
@@ -104,8 +139,8 @@ export const useStore = create((set, get) => ({
     
     const { liabilities } = get();
     const updated = liabilities.filter((l) => l.id !== id);
-    const userDocRef = doc(db, 'users', user.uid);
-    await setDoc(userDocRef, { liabilities: updated }, { merge: true });
+    set({ liabilities: updated });
+    await get().syncUserData();
   },
 
   // Computed/Derived State via Getters
@@ -147,4 +182,12 @@ export const useStore = create((set, get) => ({
       
     return { totalIncome, totalExpenses };
   }
+}), {
+  name: 'expense-tracker-store',
+  storage: createJSONStorage(() => localStorage),
+  partialize: (state) => ({
+    transactions: state.transactions,
+    assets: state.assets,
+    liabilities: state.liabilities,
+  }),
 }));

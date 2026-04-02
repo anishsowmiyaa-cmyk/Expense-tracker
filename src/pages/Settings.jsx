@@ -7,7 +7,7 @@ import { formatINR } from '../utils/formatCurrency';
 import './Settings.css';
 
 export const Settings = () => {
-  const { assets, liabilities, addAsset, deleteAsset, addLiability, deleteLiability } = useStore();
+  const { assets, liabilities, addAsset, deleteAsset, addLiability, deleteLiability, isSyncing, lastSyncError } = useStore();
   
   const [assetName, setAssetName] = useState('');
   const [assetValue, setAssetValue] = useState('');
@@ -15,20 +15,24 @@ export const Settings = () => {
   const [liabilityName, setLiabilityName] = useState('');
   const [liabilityValue, setLiabilityValue] = useState('');
 
-  const handleAddAsset = (e) => {
+  const handleAddAsset = async (e) => {
     e.preventDefault();
     if (!assetName || !assetValue) return;
-    addAsset({ name: assetName, value: parseFloat(assetValue) });
+    const nextName = assetName;
+    const nextValue = assetValue;
     setAssetName('');
     setAssetValue('');
+    await addAsset({ name: nextName, value: parseFloat(nextValue) });
   };
 
-  const handleAddLiability = (e) => {
+  const handleAddLiability = async (e) => {
     e.preventDefault();
     if (!liabilityName || !liabilityValue) return;
-    addLiability({ name: liabilityName, value: parseFloat(liabilityValue) });
+    const nextName = liabilityName;
+    const nextValue = liabilityValue;
     setLiabilityName('');
     setLiabilityValue('');
+    await addLiability({ name: nextName, value: parseFloat(nextValue) });
   };
 
   return (
@@ -46,6 +50,15 @@ export const Settings = () => {
           <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>Sign Out</span>
         </button>
       </header>
+
+      <div className="glass-card" style={{ marginBottom: '1.5rem' }}>
+        <p className="text-secondary text-sm">
+          Signed in as: {auth.currentUser?.email || 'Unknown user'}
+        </p>
+        <p className={`text-sm ${lastSyncError ? 'text-expense' : 'text-secondary'}`} style={{ marginTop: '0.5rem' }}>
+          {lastSyncError ? `Sync failed: ${lastSyncError}` : isSyncing ? 'Syncing to cloud...' : 'Cloud sync ready'}
+        </p>
+      </div>
 
       <div className="config-section">
         <div className="section-header">

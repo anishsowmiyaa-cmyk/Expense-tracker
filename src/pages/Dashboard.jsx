@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useStore } from '../store/useStore';
 import { Link } from 'react-router-dom';
 import { formatINR } from '../utils/formatCurrency';
@@ -13,9 +14,31 @@ export const Dashboard = () => {
   const totalAssets = assets.reduce((sum, item) => sum + Number(item.value), 0);
   const totalLiabilities = liabilities.reduce((sum, item) => sum + Number(item.value), 0);
 
-  const recentWorthActivity = transactions
-    .filter((transaction) => transaction.type === 'asset' || transaction.type === 'liability')
-    .slice(0, 5);
+  const recentWorthActivity = useMemo(() => {
+    const assetEntries = assets.map((asset) => ({
+      id: asset.id,
+      type: 'asset',
+      category: asset.name || asset.category,
+      amount: asset.value,
+      date: asset.date || '',
+    }));
+
+    const liabilityEntries = liabilities.map((liability) => ({
+      id: liability.id,
+      type: 'liability',
+      category: liability.name || liability.category,
+      amount: liability.value,
+      date: liability.date || '',
+    }));
+
+    const legacyTransactions = transactions.filter(
+      (transaction) => transaction.type === 'asset' || transaction.type === 'liability',
+    );
+
+    return [...assetEntries, ...liabilityEntries, ...legacyTransactions]
+      .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
+      .slice(0, 5);
+  }, [assets, liabilities, transactions]);
 
   return (
     <div className="dashboard animate-fade-in">

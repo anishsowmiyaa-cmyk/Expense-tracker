@@ -13,7 +13,7 @@ const getCategoriesByType = (type) => (
 
 export const AddTransaction = () => {
   const navigate = useNavigate();
-  const { addTransaction } = useStore();
+  const { addTransaction, addAsset, addLiability } = useStore();
   
   const [type, setType] = useState('expense');
   const [amount, setAmount] = useState('');
@@ -22,21 +22,45 @@ export const AddTransaction = () => {
   const [note, setNote] = useState('');
   const [useCustomCategory, setUseCustomCategory] = useState(false);
   const [customCategory, setCustomCategory] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const finalCategory = useCustomCategory ? customCategory.trim() : category;
-    if (!amount || !finalCategory) return;
-    
-    addTransaction({
-      type,
-      amount: parseFloat(amount),
-      category: finalCategory,
-      date,
-      note
-    });
-    
-    navigate('/');
+    if (!amount || !finalCategory || isSubmitting) return;
+
+    const parsedAmount = parseFloat(amount);
+    setIsSubmitting(true);
+
+    try {
+      if (type === 'asset') {
+        addAsset({
+          name: finalCategory,
+          value: parsedAmount,
+          date,
+          note
+        });
+      } else if (type === 'liability') {
+        addLiability({
+          name: finalCategory,
+          value: parsedAmount,
+          date,
+          note
+        });
+      } else {
+        addTransaction({
+          type,
+          amount: parsedAmount,
+          category: finalCategory,
+          date,
+          note
+        });
+      }
+
+      navigate('/', { replace: true });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const categories = getCategoriesByType(type);
@@ -189,9 +213,9 @@ export const AddTransaction = () => {
           <button type="button" className="btn btn-ghost secondary-action-btn" onClick={() => navigate(-1)}>
             Cancel
           </button>
-          <button type="submit" className="btn btn-primary submit-btn">
+          <button type="submit" className="btn btn-primary submit-btn" disabled={isSubmitting}>
             <Save size={20} />
-            <span>{saveLabel}</span>
+            <span>{isSubmitting ? 'Saving...' : saveLabel}</span>
           </button>
         </div>
       </form>

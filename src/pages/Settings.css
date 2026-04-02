@@ -1,0 +1,85 @@
+.settings-page {
+  padding-bottom: 2rem;
+}
+
+.config-section {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.section-header p {
+  margin-top: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+.add-inline-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.add-inline-form input {
+  padding: 0.5rem 0.75rem;
+}
+
+.btn-sm {
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-danger {
+  background: var(--accent-expense);
+  box-shadow: 0 4px 14px 0 var(--accent-expense-alpha);
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+}
+
+@media (min-width: 640px) {
+  .add-inline-form {
+    flex-direction: row;
+  }
+  
+  .add-inline-form input {
+    flex: 1;
+  }
+}
+
+.items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.config-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+}
+
+.config-item > div {
+  flex: 1;
+}
+
+.config-name {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.config-val {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-top: 0.25rem;
+}
+
+.btn-icon {
+  padding: 0.5rem;
+}

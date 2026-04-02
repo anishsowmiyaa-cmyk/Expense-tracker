@@ -1,0 +1,99 @@
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.icon-btn {
+  padding: 0.5rem;
+  margin-left: -0.5rem;
+}
+
+.type-toggle {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  margin-bottom: 2rem;
+  border-radius: var(--radius-lg);
+}
+
+.toggle-btn {
+  flex: 1;
+  padding: 0.75rem;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 1rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.toggle-btn.active-expense {
+  background: var(--accent-expense-alpha);
+  color: var(--accent-expense);
+  box-shadow: 0 2px 10px rgba(239, 68, 68, 0.2);
+}
+
+.toggle-btn.active-income {
+  background: var(--accent-income-alpha);
+  color: var(--accent-income);
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.2);
+}
+
+.toggle-btn.active-asset {
+  background: var(--accent-asset-alpha);
+  color: var(--accent-asset);
+  box-shadow: 0 2px 10px rgba(139, 92, 246, 0.2);
+}
+
+.toggle-btn.active-liability {
+  background: var(--accent-liability-alpha);
+  color: var(--accent-liability);
+  box-shadow: 0 2px 10px rgba(245, 158, 11, 0.2);
+}
+
+.form-card {
+  padding: 2rem 1.5rem;
+}
+
+.amount-group {
+  margin-bottom: 2rem;
+}
+
+.amount-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.currency-symbol {
+  position: absolute;
+  left: 1rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.large-input {
+  font-size: 2rem;
+  font-weight: 700;
+  padding-left: 2.5rem;
+  height: 4rem;
+}
+
+.mt-4 {
+  margin-top: 1rem;
+}
+
+.mt-6 {
+  margin-top: 2rem;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 1rem;
+  font-size: 1.125rem;
+}
